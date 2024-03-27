@@ -19,15 +19,19 @@ public abstract class TelnetServer implements AutoCloseable {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("--- SERVER STARTED on port: " + port + " ---");
             while (true) {
-                try {
-                    Socket incoming = serverSocket.accept();
-                    handlersExecutor.submit(() -> handleRequest(incoming));
-                } catch (IOException e) {
-                    throw new UncheckedIOException("Error while accepting traffic", e);
-                }
+                serveConnection(serverSocket);
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Error while starting server", e);
+        }
+    }
+
+    private void serveConnection(ServerSocket serverSocket) {
+        try {
+            Socket incoming = serverSocket.accept();
+            handlersExecutor.submit(() -> handleRequest(incoming));
+        } catch (IOException e) {
+            throw new UncheckedIOException("Error while accepting traffic", e);
         }
     }
 
